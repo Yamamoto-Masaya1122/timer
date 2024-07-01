@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'next_page.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -40,15 +42,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    _timer = Timer.periodic(
-        const Duration(seconds: 1),
-            (timer) {
-              setState(() {
-                _second++;
-            });
-        },
-    );
   }
 
   @override
@@ -68,9 +61,21 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
                 onPressed: (){
-                  stop();
+                  toggleTimer();
                 },
-                child: const Text('ストップ'),
+                child: Text(
+                  _isRunning ? 'ストップ' : 'スタート',
+                  style: TextStyle(color: _isRunning ? Colors.red : Colors.green),
+                ),
+            ),
+            ElevatedButton(
+              onPressed: (){
+                resetTimer();
+              },
+              child: Text(
+                'リセット',
+                style: TextStyle(color: Colors.black),
+              ),
             )
           ],
         ),
@@ -78,7 +83,37 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void stop() {
+  void toggleTimer() {
+    if (_isRunning) {
+      _timer?.cancel();
+    } else {
+      _timer = Timer.periodic(
+        const Duration(seconds: 1),
+            (timer) {
+          setState(() {
+            _second++;
+          });
+
+          if (_second == 10) {
+            resetTimer();
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => NextPage()),
+            );
+          }
+        },
+      );
+    }
+    setState(() {
+      _isRunning = !_isRunning;
+    });
+  }
+  void resetTimer() {
     _timer?.cancel();
+    setState(() {
+      _second = 0;
+      _isRunning = false;
+    });
   }
 }
